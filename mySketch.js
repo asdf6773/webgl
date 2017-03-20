@@ -1,17 +1,24 @@
 var VSHADER_SOURCE =
+    'attribute vec4 a_Position;' +
     'void main(){' +
-    ' gl_Position = vec4(0.,0.,0.,1.);' +
+    ' gl_Position = a_Position;' +
     ' gl_PointSize = 10.;' +
     '}';
 var FSHADER_SOURCE =
     'void main(){' +
-    '  gl_FragColor = vec4(1.,0.8 ,0.3,1.);' +
+    '  gl_FragColor = vec4(0.,0.8 ,0.3,1.);' +
     '}';
 
+var x;
+var y;
+var frame = 0;
 
 function main() {
     var canvas = document.getElementById('webgl');
     var gl = getWebGLContext(canvas);
+    canvas.onmousedown = function(ev) {
+        click(ev, gl, canvas, a_Position);
+    }
     if (!gl) {
         console.log('Failed to get the rendering for WebGL');
         return;
@@ -20,7 +27,37 @@ function main() {
         console.log('Failed to initialize shaders');
         return;
     }
-    gl.clearColor(0.0, 1.0, 0.0, 1.0);
+
+    //  x = Math.cos(frame);
+    //  y = Math.sin(frame);
+    var a_Position = gl.getAttribLocation(gl.program, 'a_Position');
+    if (a_Position < 0) {
+        console.log('Failed to get the storage location of a_Position');
+        return;
+    }
+    gl.vertexAttrib3f(a_Position, 0., 0., 0.);
+    gl.clearColor(0.0, 0.2, 0.3, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.drawArrays(gl.POINTS, 0, 1);
+    //  frame += 0.01;
+    //  requestAnimationFrame(main);
 }
+var g_points = [];
+
+function click(ev, gl, canvas, a_Position) {
+    var x = ev.clientX;
+    var y = ev.clientY;
+    var rect = ev.target.getBoundingClientRect(); //get canvas position
+    x = ((x - rect.left) - canvas.width / 2) / (canvas.width / 2);
+    y = (-(y - rect.top) + canvas.height / 2) / (canvas.height / 2);
+    g_points.push(x);
+    g_points.push(y);
+
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    var len = g_points.length;
+    for (var i = 0; i < len; i += 2) {
+        gl.vertexAttrib3f(a_Position, g_points[i], g_points[i + 1], 0.0);
+    }
+    gl.drawArrays(gl.POINTS, 0 , 1);
+}
+requestAnimationFrame(main);
