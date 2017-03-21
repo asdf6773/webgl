@@ -8,7 +8,7 @@ var FSHADER_SOURCE =
     'precision mediump float;' +
     'uniform vec4 u_FragColor;' +
     'void main(){' +
-    '  gl_FragColor = u_FragColor;' +
+    '  gl_FragColor = vec4(0.5,0.4,0.4,1.0);' +
     '}';
 
 var x;
@@ -27,30 +27,37 @@ function main() {
         console.log('Failed to initialize shaders');
         return;
     }
+    var n = initVertexBuffers(gl);
+    if (n < 0) {
+        console.log('Failed to set the position of the vertices');
+    }
+
 
     //  x = Math.cos(frame);
     //  y = Math.sin(frame);
-    var a_Position = gl.getAttribLocation(gl.program, 'a_Position');
-    if (a_Position < 0) {
-        console.log('Failed to get the storage location of a_Position');
-        return;
-    }
+    //  var a_Position = gl.getAttribLocation(gl.program, 'a_Position');
+    //  if (a_Position < 0) {
+    //    console.log('Failed to get the storage location of a_Position');
+    //  return;
+    //}
 
-    canvas.onmousedown = function(ev) {
-        click(ev, gl, canvas, a_Position,u_FragColor);
-    }
-    var u_FragColor = gl.getUniformLocation(gl.program, 'u_FragColor');
-    if (u_FragColor < 0) {
-        console.log('Failed to get the storage location of u_FragColor');
-        return;
-    }
+    //canvas.onmousedown = function(ev) {
+    //    click(ev, gl, canvas, a_Position, u_FragColor);
+    //  }
+  //  var u_FragColor = gl.getUniformLocation(gl.program, 'u_FragColor');
+  //  if (u_FragColor < 0) {
+    //    console.log('Failed to get the storage location of u_FragColor');
+    //    return;
+  //  }
     //  gl.vertexAttrib3f(a_Position, 0., 0., 0.);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
-    //  gl.drawArrays(gl.POINTS, 0, 1);
+    gl.drawArrays(gl.POINTS, 0, n);
     //  frame += 0.01;
     //  requestAnimationFrame(main);
 }
+
+
 var g_points = [];
 var g_colors = [];
 
@@ -82,8 +89,28 @@ function click(ev, gl, canvas, a_Position, u_FragColor) {
         gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
         gl.drawArrays(gl.POINTS, 0, 1);
     }
-
-
     console.log(len);
 }
+
+function initVertexBuffers(gl) {
+    var vertices = new Float32Array([
+        0.0,
+        0.5, -0.5, -0.5,
+        0.5, -0.5
+    ]);
+    var n = 3;
+    var vertexBuffer = gl.createBuffer();
+    if (!vertexBuffer) {
+        console.log('Failed to create buffer object');
+        return -1;
+    }
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+    var a_Position = gl.getAttribLocation(gl.program, 'a_Position');
+    gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(a_Position);
+    return n;
+};
+
+
 //requestAnimationFrame(main);
