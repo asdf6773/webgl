@@ -1,13 +1,14 @@
 var VSHADER_SOURCE =
     //'uniform vec4 u_Translation;' +
-    'uniform float u_CosB,u_SinB;' +
+    'uniform vec2 u_CosBSinB;' +
     'attribute vec4 a_Position;' +
     'void main(){' +
-    ' gl_Position.x = a_Position.x*u_CosB - a_Position.y*u_SinB;' +
-    ' gl_Position.y = a_Position.x*u_SinB + a_Position.y*u_CosB;' +
+  //  'gl.Position = vec4(u_CosBSinB);'
+    ' gl_Position.x = a_Position.x*u_CosBSinB.x - a_Position.y*u_CosBSinB.y;' +
+    ' gl_Position.y = a_Position.x*u_CosBSinB.y + a_Position.y*u_CosBSinB.x;' +
     ' gl_Position.z = a_Position.z;' +
-    ' gl_Position.w = 1.0;'+
-    //    ' gl_PointSize = 10.;' +
+    ' gl_Position.w = 1.0;' +
+    //' gl_PointSize = 10.;' +
     '}';
 var FSHADER_SOURCE =
     'precision mediump float;' +
@@ -38,10 +39,10 @@ function main() {
         return;
     }
     var n = initVertexBuffers(gl);
-    var u_CosB = gl.getUniformLocation(gl.program, 'u_CosB');
-    var u_SinB = gl.getUniformLocation(gl.program, 'u_SinB');
-    gl.uniform1f(u_CosB, cosB);
-    gl.uniform1f(u_SinB, sinB);
+    var u_CosBSinB = gl.getUniformLocation(gl.program, 'u_CosBSinB');
+
+    gl.uniform2f(u_CosBSinB, cosB, sinB);
+    //  gl.uniform1f(u_SinB, sinB);
 
     if (n < 0) {
         console.log('Failed to set the position of the vertices');
